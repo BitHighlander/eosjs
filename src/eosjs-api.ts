@@ -2,6 +2,7 @@
  * @module API
  */
 // copyright defined in eosjs/LICENSE.txt
+const TAG  = ' eojs-api ';
 
 import { AbiProvider, AuthorityProvider, BinaryAbi, CachedAbi, SignatureProvider } from './eosjs-api-interfaces';
 import { JsonRpc } from './eosjs-jsonrpc';
@@ -225,7 +226,13 @@ export class Api {
                 info = await this.rpc.get_info();
             }
             const refBlock = await this.rpc.get_block(info.head_block_num - blocksBehind);
-            transaction = { ...ser.transactionHeader(refBlock, expireSeconds), ...transaction };
+
+            let header = ser.transactionHeader(refBlock, expireSeconds)
+            console.log(TAG,"header: ",header)
+
+            transaction = { ...{ expiration: '2020-04-24T04:34:10.000',
+                ref_block_num: 14724,
+                ref_block_prefix: 708109566 }, ...transaction };
         }
 
         if (!this.hasRequiredTaposFields(transaction)) {
@@ -234,12 +241,25 @@ export class Api {
 
         const abis: BinaryAbi[] = await this.getTransactionAbis(transaction);
         transaction = { ...transaction, actions: await this.serializeActions(transaction.actions) };
+
+      // tslint:disable-next-line:no-console
+      //static
+      // console.log(TAG, 'transaction: ', transaction);
+      // console.log(TAG, 'actions: ', transaction.actions);
+      // console.log(TAG, 'actions: ', transaction.actions[0]);
+      // console.log(TAG, 'actions: ', transaction.actions[0].data);
+      // console.log(TAG, 'expected: ',"D031BD4749884CEBD03B5D6C3A6632EE010000000000000004454F530000000008746573746D656D6F")
+
         const serializedTransaction = this.serializeTransaction(transaction);
         let pushTransactionArgs: PushTransactionArgs  = { serializedTransaction, signatures: [] };
 
         if (sign) {
             const availableKeys = await this.signatureProvider.getAvailableKeys();
             const requiredKeys = await this.authorityProvider.getRequiredKeys({ transaction, availableKeys });
+
+            // tslint:disable-next-line:no-console
+            //console.log(TAG, 'serializedTransaction: ', serializedTransaction);
+
             pushTransactionArgs = await this.signatureProvider.sign({
                 chainId: this.chainId,
                 requiredKeys,
@@ -247,9 +267,9 @@ export class Api {
                 abis,
             });
         }
-        if (broadcast) {
-            return this.pushSignedTransaction(pushTransactionArgs);
-        }
+        // if (broadcast) {
+        //     return this.pushSignedTransaction(pushTransactionArgs);
+        // }
         return pushTransactionArgs;
     }
 

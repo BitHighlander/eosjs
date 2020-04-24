@@ -4,6 +4,8 @@
   "description": "Talk to eos API",
   "main": "dist/index.js",
   "scripts": {
+    "test-module": "npm run build && node __tests__/test-module.js",
+    "test-module-ts": "ts-node __tests__/test-module-ts.ts",
     "cypress": "./scripts/run-cypress.sh",
     "cypress-ui": "./scripts/run-cypress.sh ui",
     "prepare": "npm run build",
