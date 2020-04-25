@@ -240,14 +240,15 @@ export class Api {
         }
 
         const abis: BinaryAbi[] = await this.getTransactionAbis(transaction);
+        console.log(TAG,"action: ",transaction.actions)
         transaction = { ...transaction, actions: await this.serializeActions(transaction.actions) };
 
       // tslint:disable-next-line:no-console
       //static
-      // console.log(TAG, 'transaction: ', transaction);
-      // console.log(TAG, 'actions: ', transaction.actions);
-      // console.log(TAG, 'actions: ', transaction.actions[0]);
-      // console.log(TAG, 'actions: ', transaction.actions[0].data);
+      console.log(TAG, 'transaction: ', transaction);
+      console.log(TAG, 'actions: ', transaction.actions);
+      console.log(TAG, 'actions: ', transaction.actions[0]);
+      console.log(TAG, 'actions: ', transaction.actions[0].data);
       // console.log(TAG, 'expected: ',"D031BD4749884CEBD03B5D6C3A6632EE010000000000000004454F530000000008746573746D656D6F")
 
         const serializedTransaction = this.serializeTransaction(transaction);

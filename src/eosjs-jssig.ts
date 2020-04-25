@@ -2,7 +2,7 @@
  * @module JS-Sig
  */
 // copyright defined in eosjs/LICENSE.txt
-
+const TAG = " | JSSIG | "
 import * as ecc from 'eosjs-ecc';
 import { SignatureProvider, SignatureProviderArgs } from './eosjs-api-interfaces';
 import { convertLegacyPublicKey } from './eosjs-numeric';
@@ -34,6 +34,10 @@ export class JsSignatureProvider implements SignatureProvider {
         const signBuf = Buffer.concat([
             new Buffer(chainId, 'hex'), new Buffer(serializedTransaction), new Buffer(new Uint8Array(32)),
         ]);
+
+        //console.log(TAG,"serializedTransaction: ",new Buffer(serializedTransaction).toString('hex'))
+        //as hex
+
         const signatures = requiredKeys.map(
             (pub) => ecc.Signature.sign(signBuf, this.keys.get(convertLegacyPublicKey(pub))).toString(),
         );

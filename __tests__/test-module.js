@@ -17,7 +17,7 @@ const rpc = new JsonRpc(URL_REMOTE, { fetch });
 const api = new Api({ rpc, signatureProvider, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() });
 
 let WALLET_EOS_MASTER = "xhackmebrosx"
-let toAddress = "xstagingfoxx"
+let toAddress = "xhighlanderx"
 let memo = "testmemo"
 let amount = 0.0001
 let run_test = async function(){
@@ -52,7 +52,7 @@ let run_test = async function(){
         let signature = result.signatures
         console.log("txHex: ",txHex)
         console.log("signature: ",signature[0])
-        console.log("expected : ","SIG_K1_K5RaXxg1U8eLihD4zng72AHjTwdcCon3sTiiE9aKNAbq69mtmuocdgZrD8fQKqefGbJTeSahCa4Ve4Hbnhj7GmJEAGGx3K")
+        console.log("expected : ","SIG_K1_JyeA2rZQwYiqps5TdP2SRw823BxKVr2LQD9zZFeqSkzq4fvDd93aU3aSAPK1XUsWSp6jz5tphKqkyBs8BuLtcppRsv5THS")
 
     }catch(e){
         console.error(e)
