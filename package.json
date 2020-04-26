@@ -31,7 +31,11 @@
   },
   "dependencies": {
     "babel-runtime": "6.26.0",
+    "bip32": "^2.0.5",
+    "bip39": "^3.0.2",
     "eosjs-ecc": "4.0.7",
+    "hdkey": "^1.1.2",
+    "secp256k1": "^4.0.0",
     "text-encoding": "0.7.0"
   },
   "devDependencies": {

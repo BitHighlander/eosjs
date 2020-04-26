@@ -6,8 +6,14 @@ const { Api, JsonRpc, RpcError } = require('../dist');
 const { JsSignatureProvider } = require('../dist/eosjs-jssig'); // development only
 const fetch = require('node-fetch'); // node only; not needed in browsers
 const { TextEncoder, TextDecoder } = require('util');
+let {PrivateKey, PublicKey, Signature, Aes, key_utils, config} = require('eosjs-ecc')
+
+//HD seed
+let mnemonic = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle"
 
 //from test seed
+let pubkey = "02015fabe197c955036bab25f4e7c16558f9f672f9f625314ab1ec8f64f7b1198e"
+let WALLET_EOS_MASTER_PUBLIC = "EOS4u6Sfnzj4Sh2pEQnkXyZQJqH3PkKjGByDCbsqqmyq6PttM9KyB"
 let WALLET_EOS_MASTER_PRIVATE = "5HyML2AXqvTCUnuuYxwymfGGm9G4uUEdXisvufUcCcv6WY6S7S8"
 
 const privateKeys = [WALLET_EOS_MASTER_PRIVATE];
