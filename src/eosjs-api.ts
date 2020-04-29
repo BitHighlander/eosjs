@@ -201,6 +201,50 @@ export class Api {
         return { ...deserializedTransaction, actions: deserializedActions };
     }
 
+    /*
+        Encode Transaction
+        Build and optionally broadcast a tx given a valid signature
+     */
+
+  public async encodeTransaction(transaction: any,header:any,signature:any, { broadcast = true, sign = true, blocksBehind, expireSeconds }:
+    { broadcast?: boolean; sign?: boolean; blocksBehind?: number; expireSeconds?: number; } = {}): Promise<any> {
+    let info: GetInfoResult;
+
+    if (!this.chainId) {
+      info = await this.rpc.get_info();
+      this.chainId = info.chain_id;
+    }
+
+    transaction = { ...header, ...transaction };
+
+    if (!this.hasRequiredTaposFields(transaction)) {
+      throw new Error('Required configuration or TAPOS fields are not present');
+    }
+
+    const abis: BinaryAbi[] = await this.getTransactionAbis(transaction);
+    console.log(TAG,"action: ",transaction.actions)
+    transaction = { ...transaction, actions: await this.serializeActions(transaction.actions) };
+
+    // tslint:disable-next-line:no-console
+    //static
+    console.log(TAG, 'transaction: ', transaction);
+    console.log(TAG, 'actions: ', transaction.actions);
+    console.log(TAG, 'actions: ', transaction.actions[0]);
+    console.log(TAG, 'actions: ', transaction.actions[0].data);
+    // console.log(TAG, 'expected: ',"D031BD4749884CEBD03B5D6C3A6632EE010000000000000004454F530000000008746573746D656D6F")
+
+    const serializedTransaction = this.serializeTransaction(transaction);
+    let pushTransactionArgs: PushTransactionArgs  = { serializedTransaction, signatures: [] };
+
+    pushTransactionArgs.signatures[0] = signature
+
+    if (broadcast) {
+      console.log("BROADCAST: CHECKPOINT")
+      return this.pushSignedTransaction(pushTransactionArgs);
+    }
+    return pushTransactionArgs;
+  }
+
     /**
      * Create and optionally broadcast a transaction.
      *
@@ -213,69 +257,45 @@ export class Api {
      * @returns node response if `broadcast`, `{signatures, serializedTransaction}` if `!broadcast`
      */
     public async transact(transaction: any, { broadcast = true, sign = true, blocksBehind, expireSeconds }:
-        { broadcast?: boolean; sign?: boolean; blocksBehind?: number; expireSeconds?: number; } = {}): Promise<any> {
-        let info: GetInfoResult;
+      { broadcast?: boolean; sign?: boolean; blocksBehind?: number; expireSeconds?: number; } = {}): Promise<any> {
+      let info: GetInfoResult;
 
-        if (!this.chainId) {
-            info = await this.rpc.get_info();
-            this.chainId = info.chain_id;
+      if (!this.chainId) {
+        info = await this.rpc.get_info();
+        this.chainId = info.chain_id;
+      }
+
+      if (typeof blocksBehind === 'number' && expireSeconds) { // use config fields to generate TAPOS if they exist
+        if (!info) {
+          info = await this.rpc.get_info();
         }
+        const refBlock = await this.rpc.get_block(info.head_block_num - blocksBehind);
+        transaction = { ...ser.transactionHeader(refBlock, expireSeconds), ...transaction };
+      }
 
-        if (typeof blocksBehind === 'number' && expireSeconds) { // use config fields to generate TAPOS if they exist
-            if (!info) {
-                info = await this.rpc.get_info();
-            }
-            const refBlock = await this.rpc.get_block(info.head_block_num - blocksBehind);
+      if (!this.hasRequiredTaposFields(transaction)) {
+        throw new Error('Required configuration or TAPOS fields are not present');
+      }
 
-            let header = ser.transactionHeader(refBlock, expireSeconds)
-            console.log(TAG,"header: ",header)
+      const abis: BinaryAbi[] = await this.getTransactionAbis(transaction);
+      transaction = { ...transaction, actions: await this.serializeActions(transaction.actions) };
+      const serializedTransaction = this.serializeTransaction(transaction);
+      let pushTransactionArgs: PushTransactionArgs  = { serializedTransaction, signatures: [] };
 
-            transaction = { ...{ expiration: '2020-04-29T22:39:11.000',
-                ref_block_num: 21879,
-                ref_block_prefix: 348333919 }, ...transaction };
-        }
-
-        if (!this.hasRequiredTaposFields(transaction)) {
-            throw new Error('Required configuration or TAPOS fields are not present');
-        }
-
-        const abis: BinaryAbi[] = await this.getTransactionAbis(transaction);
-        console.log(TAG,"action: ",transaction.actions)
-        transaction = { ...transaction, actions: await this.serializeActions(transaction.actions) };
-
-      // tslint:disable-next-line:no-console
-      //static
-      console.log(TAG, 'transaction: ', transaction);
-      console.log(TAG, 'actions: ', transaction.actions);
-      console.log(TAG, 'actions: ', transaction.actions[0]);
-      console.log(TAG, 'actions: ', transaction.actions[0].data);
-      // console.log(TAG, 'expected: ',"D031BD4749884CEBD03B5D6C3A6632EE010000000000000004454F530000000008746573746D656D6F")
-
-        const serializedTransaction = this.serializeTransaction(transaction);
-        let pushTransactionArgs: PushTransactionArgs  = { serializedTransaction, signatures: [] };
-
-        if (sign) {
-            const availableKeys = await this.signatureProvider.getAvailableKeys();
-            const requiredKeys = await this.authorityProvider.getRequiredKeys({ transaction, availableKeys });
-
-            // tslint:disable-next-line:no-console
-            //console.log(TAG, 'serializedTransaction: ', serializedTransaction);
-            //console.log(TAG, 'pushTransactionArgs: ', pushTransactionArgs);
-            pushTransactionArgs = await this.signatureProvider.sign({
-                chainId: this.chainId,
-                requiredKeys,
-                serializedTransaction,
-                abis,
-            });
-
-            //console.log(TAG,"pushTransactionArgs: ", pushTransactionArgs)
-        }
-        if (true) {
-            //console.log("BROADCAST: CHECKPOINT",pushTransactionArgs)
-            pushTransactionArgs.signatures[0] = "SIG_K1_K4L7WGfwmZUY7yW7sCB7KnxzJUKR9BfKcSxZv7xV6rrd9ZSzd3AevtzFmqtSRWwPyBMX5p9ctS48ZmeEvuPjrr5pHSSFQ6"
-            return this.pushSignedTransaction(pushTransactionArgs);
-        }
-        return pushTransactionArgs;
+      if (sign) {
+        const availableKeys = await this.signatureProvider.getAvailableKeys();
+        const requiredKeys = await this.authorityProvider.getRequiredKeys({ transaction, availableKeys });
+        pushTransactionArgs = await this.signatureProvider.sign({
+          chainId: this.chainId,
+          requiredKeys,
+          serializedTransaction,
+          abis,
+        });
+      }
+      if (broadcast) {
+        return this.pushSignedTransaction(pushTransactionArgs);
+      }
+      return pushTransactionArgs;
     }
 
     /** Broadcast a signed transaction */

@@ -29,7 +29,7 @@ let amount = 0.0001
 let run_test = async function(){
     try{
 
-        let result = await api.transact({
+        let result = await api.encodeTransaction({
             actions: [{
                 account: 'eosio.token',
                 name: 'transfer',
@@ -44,13 +44,18 @@ let run_test = async function(){
                     memo: memo,
                 },
             }]
-        }, {
-            broadcast:false,
+        }, { expiration: '2020-04-29T22:39:11.000',
+            ref_block_num: 21879,
+            ref_block_prefix: 348333919 },
+          "SIG_K1_K4L7WGfwmZUY7yW7sCB7KnxzJUKR9BfKcSxZv7xV6rrd9ZSzd3AevtzFmqtSRWwPyBMX5p9ctS48ZmeEvuPjrr5pHSSFQ6",
+          {
+            broadcast:true, //TurmMeOff in prod
             blocksBehind: 3,
-            expireSeconds: 300,
+            expireSeconds: 99999,
         });
 
         console.log("result: ",result)
+
         // let txBytes = result.serializedTransaction
         //
         // //tx hex
