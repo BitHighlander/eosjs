@@ -50,15 +50,15 @@ let run_test = async function(){
             expireSeconds: 300,
         });
 
-        //console.log("result: ",result)
-        let txBytes = result.serializedTransaction
-
-        //tx hex
-        let txHex = new Buffer(txBytes).toString('hex')
-        let signature = result.signatures
-        console.log("txHex: ",txHex)
-        console.log("signature: ",signature[0])
-        console.log("expected : ","SIG_K1_JyeA2rZQwYiqps5TdP2SRw823BxKVr2LQD9zZFeqSkzq4fvDd93aU3aSAPK1XUsWSp6jz5tphKqkyBs8BuLtcppRsv5THS")
+        console.log("result: ",result)
+        // let txBytes = result.serializedTransaction
+        //
+        // //tx hex
+        // let txHex = new Buffer(txBytes).toString('hex')
+        // let signature = result.signatures
+        // console.log("txHex: ",txHex)
+        // console.log("signature: ",signature[0])
+        // console.log("expected : ","SIG_K1_JyeA2rZQwYiqps5TdP2SRw823BxKVr2LQD9zZFeqSkzq4fvDd93aU3aSAPK1XUsWSp6jz5tphKqkyBs8BuLtcppRsv5THS")
 
     }catch(e){
         console.error(e)

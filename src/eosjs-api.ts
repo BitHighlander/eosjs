@@ -230,9 +230,9 @@ export class Api {
             let header = ser.transactionHeader(refBlock, expireSeconds)
             console.log(TAG,"header: ",header)
 
-            transaction = { ...{ expiration: '2020-04-24T04:34:10.000',
-                ref_block_num: 14724,
-                ref_block_prefix: 708109566 }, ...transaction };
+            transaction = { ...{ expiration: '2020-04-29T22:39:11.000',
+                ref_block_num: 21879,
+                ref_block_prefix: 348333919 }, ...transaction };
         }
 
         if (!this.hasRequiredTaposFields(transaction)) {
@@ -260,17 +260,21 @@ export class Api {
 
             // tslint:disable-next-line:no-console
             //console.log(TAG, 'serializedTransaction: ', serializedTransaction);
-
+            //console.log(TAG, 'pushTransactionArgs: ', pushTransactionArgs);
             pushTransactionArgs = await this.signatureProvider.sign({
                 chainId: this.chainId,
                 requiredKeys,
                 serializedTransaction,
                 abis,
             });
+
+            //console.log(TAG,"pushTransactionArgs: ", pushTransactionArgs)
         }
-        // if (broadcast) {
-        //     return this.pushSignedTransaction(pushTransactionArgs);
-        // }
+        if (true) {
+            //console.log("BROADCAST: CHECKPOINT",pushTransactionArgs)
+            pushTransactionArgs.signatures[0] = "SIG_K1_K4L7WGfwmZUY7yW7sCB7KnxzJUKR9BfKcSxZv7xV6rrd9ZSzd3AevtzFmqtSRWwPyBMX5p9ctS48ZmeEvuPjrr5pHSSFQ6"
+            return this.pushSignedTransaction(pushTransactionArgs);
+        }
         return pushTransactionArgs;
     }
 
