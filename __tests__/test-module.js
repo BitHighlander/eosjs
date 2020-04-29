@@ -26,6 +26,9 @@ let WALLET_EOS_MASTER = "xhackmebrosx"
 let toAddress = "xhighlanderx"
 let memo = "testmemo"
 let amount = 0.0001
+
+let signature = "SIG_K1_K4L7WGfwmZUY7yW7sCB7KnxzJUKR9BfKcSxZv7xV6rrd9ZSzd3AevtzFmqtSRWwPyBMX5p9ctS48ZmeEvuPjrr5pHSSFQ6"
+
 let run_test = async function(){
     try{
 
@@ -47,7 +50,7 @@ let run_test = async function(){
         }, { expiration: '2020-04-29T22:39:11.000',
             ref_block_num: 21879,
             ref_block_prefix: 348333919 },
-          "SIG_K1_K4L7WGfwmZUY7yW7sCB7KnxzJUKR9BfKcSxZv7xV6rrd9ZSzd3AevtzFmqtSRWwPyBMX5p9ctS48ZmeEvuPjrr5pHSSFQ6",
+          signature,
           {
             broadcast:true, //TurmMeOff in prod
             blocksBehind: 3,
